@@ -42,3 +42,25 @@ const callInput = document.getElementById('callInput');
 const answerButton = document.getElementById('answerButton');
 const remoteVideo = document.getElementById('remoteVideo');
 const hangupButton = document.getElementById('hangupButton');
+
+
+//setup Media Sources
+webcamButton.onclick = async () => {
+  localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+  remoteStream = new MediaStream();
+
+  //push tracks from local stream to peer connections
+  localStream.getTracks().forEach((track)=>{
+    pc.addTrack(track, localStream);
+  });
+
+  //pull tracks from remote stream and add to video stream
+  pc.ontrack = event => {
+    event.streams[0].getTracks().forEach((track)=>{
+      remoteStream.addTrack(track);
+    });
+  }
+
+  webcamVideo.srcObject = localStream;
+  remoteVideo.srcObject = remoteStream;
+};
